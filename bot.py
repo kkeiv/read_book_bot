@@ -1,30 +1,47 @@
-from config_data.config import load_config
-from aiogram import Bot, Dispatcher, executor
-import handlers.user_handlers
-from models.methods import load_users_file
-from models.models import Users, users
+import asyncio
+import logging
+
+from aiogram import Dispatcher, Bot
+
+from config_data.config import Config, load_config
 
 
-config = load_config(None)
-print(config)
 
-# Создаем объекты бота и диспетчера
-bot: Bot = Bot(config.tg_bot.token)
-dp: Dispatcher = Dispatcher(bot)
+# initialize logger
+logger = logging.getLogger(__name__)
 
-# подгружаем базу пользователей
-users = load_users_file()
+# @brief register handlers from all modules
+#def register_all_handlers(dp: Dispatcher) -> None:
+#    register_user_handlers(dp)
+#    register_other_handlers(dp)
+
+# @brief main starting
+async def main():
+
+    # create and load configurations
+    config: Config = load_config()
+
+    # create and initialize bot
+    bot: Bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
+
+    # create and initialize dispatcher
+    dp: Dispatcher = Dispatcher(bot=bot)
+
+    # prepare main menu
+#    await set_main_menu(dp)
+
+    # start pooling
+    try:
+        await dp.start_polling()
+    finally:
+        await bot.close()
 
 
-dp.register_message_handler(handlers.user_handlers.process_start_command, commands='start')
-dp.register_message_handler(handlers.user_handlers.process_help_command, commands='help')
-
-dp.register_message_handler(handlers.user_handlers.process_fill_anket_start, text='Заполнить анкету')
-dp.register_message_handler(handlers.user_handlers.process_anonium_user, text='Анонимный пользователь')
-#dp.register_message_handler(process_stat_command, commands='stat')
-#dp.register_message_handler(process_cancel_command, commands='cancel')
-dp.register_message_handler(handlers.user_handlers.process_other_text_answers)
-
-
+# main point of statring
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    try:
+        # try to start main programm
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        # write log event if somone going wrong
+        logger.error('Bot Stopped by exeption')
