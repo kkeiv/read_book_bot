@@ -1,21 +1,22 @@
 from dataclasses import dataclass
 from environs import Env
 
-# class of bot`s secrets
 @dataclass
 class TgBot:
-    token: str          # token of bot
-    admin: list[int]    # list of admin IDs
+    token: str              # telegram access token
+    admin_ids: list[int]    # list of admin`s ids
 
-# class of config
 @dataclass
 class Config:
-    tg_bot : TgBot      # bot`s class
+    tg_bot: TgBot           # main bot configuration
 
-def load_config (path: str | None) -> Config:
-    env: Env = Env()                # Create exemplar of Env
-    env.read_env(path)              # read file .env and load into OS environment
+# @brief: load configuration into main structure "Config"
+def load_config (path : str | None = None) -> Config:
+    env = Env()
+    env.read_env(path)
+    return Config(tg_bot=TgBot(token=env('READ_BOOK_BOT_TOKEN'),
+                                admin_ids=list(map(int, env.list('READ_BOOK_BOT_ADMIN')))))
 
-    return Config(tg_bot=TgBot(token=env('BOT_IDEAL_FIGURE_ASSISTANT_TOKEN'),     # Сохраняем значение переменной окружения в переменную bot_token
-                    admin=list(map(int, env.list('BOT_IDEAL_FIGURE_ASSISTANT_ADMIN_ID')))))     # Преобразуем значение переменной окружения к типу int
+
+
 
