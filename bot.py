@@ -5,7 +5,7 @@ from aiogram import Dispatcher, Bot
 
 from config_data.config import Config, load_config
 
-
+from services.file_handling import book, prepare_book, BOOK_PATH
 
 # initialize logger
 logger = logging.getLogger(__name__)
@@ -20,6 +20,8 @@ async def main():
 
     # create and load configurations
     config: Config = load_config()
+
+    prepare_book(BOOK_PATH)
 
     # create and initialize bot
     bot: Bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
