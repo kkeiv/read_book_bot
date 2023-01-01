@@ -6,6 +6,7 @@ from aiogram import Dispatcher, Bot
 from config_data.config import Config, load_config
 
 from services.file_handling import book, prepare_book, BOOK_PATH
+from keyboards.main_menu import set_main_menu
 
 # initialize logger
 logger = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ async def main():
     dp: Dispatcher = Dispatcher(bot=bot)
 
     # prepare main menu
-#    await set_main_menu(dp)
+    await set_main_menu(dp)
 
     # start pooling
     try:

@@ -1,14 +1,12 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram import Dispatcher, types
+from lexicon.lexicon import get_text
 
-# Создаем объект клавиатуры
-keybord_start: ReplyKeyboardMarkup = ReplyKeyboardMarkup(resize_keyboard=True)
-keybord_register: ReplyKeyboardMarkup = ReplyKeyboardMarkup(resize_keyboard=True)
-
-# Создаем объекты кнопок
-buttun_register_test: KeyboardButton = KeyboardButton("Заполнить анкету")
-buttun_anonim: KeyboardButton = KeyboardButton("Анонимный пользователь")
-
-# Добавляем кнопки в клавиатуру методом add
-keybord_start.add(buttun_register_test, buttun_anonim)
-
-keybord_register.add(buttun_register_test)
+# create main menu
+async def set_main_menu (dp : Dispatcher) -> None:
+    main_menu_commands = [
+        types.BotCommand(command='/begining', description=get_text('menu_begining')),
+        types.BotCommand(command='/continue', description=get_text('menu_continue')),
+        types.BotCommand(command='/bookmarks', description=get_text('menu_bookmarks')),
+        types.BotCommand(command='/help', description=get_text('menu_help'))
+    ]
+    await dp.bot.set_my_commands(main_menu_commands)
