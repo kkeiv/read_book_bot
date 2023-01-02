@@ -1,17 +1,21 @@
 from lexicon_ru import LEXICON_RU
 from lexicon_en import LEXICON_EN
 
-# get text based on language settings
+# @brief get text based on language settings
 def get_text(param : str) -> str:
 
     # TODO: select dictionary based on language
     lang : str = 'RU'
     ret : str = ""
 
+    # form text based on language settings
+    # in case of key is absent in the dictionary - print param`s name
     if lang == 'RU':
-        ret = LEXICON_RU.get(param, "NoRuPar")
-        return ret
+        ret = LEXICON_RU.get(param, param)
+    elif lang == 'EN':
+        ret = LEXICON_EN.get(param, param)
+    else:   # by default in English
+        ret = LEXICON_EN.get(param, param)
 
-    ret = LEXICON_EN.get(param, "NoEnPar")
     return ret
 
