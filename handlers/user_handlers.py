@@ -1,63 +1,72 @@
-from aiogram import types
-from aiogram.types import Message, ReplyKeyboardRemove
-#import datetime
-#import time
-from utils.ulils import is_new_user, is_admin, is_private, is_registred
-from models.models import create_user, users
-from models.methods import save_users_file
+from aiogram import Dispatcher
+from aiogram.types import Message, CallbackQuery
 
-from keyboards.keyboard_utils import keybord_start, keybord_register
+# @brief handler for "start" command
+async def process_command_start (message : Message) -> None:
+    pass
 
-# Этот хэндлер будет срабатывать на команду "/start"
-async def process_start_command(message: types.Message):
-    id = message.from_user.id
-    # новый пользователь
-    if is_new_user(id):
-        new_user = create_user(firstName=message.from_user.first_name,
-                lastName=message.from_user.last_name,
-                nickName=message.from_user.username,
-                isBot=message.from_user.is_bot,
-                tgLang=message.from_user.language_code)
-        users[id] = new_user
-        save_users_file(users)
-        await message.answer(f'Привет {new_user.udata.fname} {new_user.udata.fname}!\nЯ вижу ты здесь первый раз. Давай начнем со знакомства.\n\nЖми "Заполнить анкету"', reply_markup=keybord_start)
-        return
-    else:
-        if is_admin(id):
-            await message.answer(f'Привет admin {users[id].udata.fname} {users[id].udata.fname}!\n\nХотите узнать что было в период вашего отсутствия?')
-        elif is_private(id):
-            await message.answer(f'Привет {users[id].udata.fname} {users[id].udata.fname}!\n\nРады вас видеть снова.\nХотите посмотреть состояние ваших подписок?')
-        elif is_registred(id):
-            await message.answer(f'Привет {users[id].udata.fname} {users[id].udata.fname}!\n\nУ нас есть кое что интересное для вас')
-        else:
-            await message.answer(f'Привет {users[id].udata.fname} {users[id].udata.fname}!\n\nРады вас видеть.\nПредлагаю пройти короткую регистрацию. Это позволит нам более эффективно взаимодействовать в будущем.\n\nПосле регистрации вам станет доступно больше информации', reply_markup=keybord_register)
-        return
-    await message.answer(f'Не знаю как мы сюда попали, но давайте попробуем выбраться вместе 0x001')
-#    await message.answer(f'А мы с вами не знакомы', reply_markup=keybord_start)
+# @brief handler for "help" command
+async def process_command_help (message : Message) -> None:
+    pass
+
+# @brief handler for "start from begining" command
+async def process_command_beginning (message : Message) -> None:
+    pass
+
+# @brief handler for "continue reading" command
+async def process_command_continue (message : Message) -> None:
+    pass
+
+# @brief handler for "edit bookmarks" command
+async def process_command_bookmarks (message : Message) -> None:
+    pass
+
+# @brief handler for press button "next page"
+async def process_press_next (callback : CallbackQuery) -> None:
+    pass
+
+# @brief handler for press button "previous page"
+async def process_press_prev (callback : CallbackQuery) -> None:
+    pass
+
+# @brief handler for press button with page number
+async def process_press_page (callback : CallbackQuery) -> None:
+    pass
+
+# @brief handler for press button with bookmark number
+async def process_press_bookmark (callback : CallbackQuery) -> None:
+    pass
+
+# @brief handler for press button with "edit bookmark"
+async def process_press_editbm (callback : CallbackQuery) -> None:
+    pass
+
+# @brief handler for press button for cancellation of edit bookmark
+async def process_press_cancelbm (callback : CallbackQuery) -> None:
+    pass
+
+# @brief handler for press button with "delete bookmark"
+async def process_press_deletebm (callback : CallbackQuery) -> None:
+    pass
+
+# @brief register all user`s handlers
+def register_user_handlers (dp : Dispatcher) -> None:
+    dp.register_message_handler(process_command_start, commands=['start'])
+    dp.register_message_handler(process_command_help, commands=['help'])
+    dp.register_message_handler(process_command_beginning, commands=['begining'])
+    dp.register_message_handler(process_command_continue, commands=['continue'])
+    dp.register_message_handler(process_command_bookmarks, commands=['bookmarks'])
+
+    dp.register_callback_query_handler(process_press_next, text="forward")
+    dp.register_callback_query_handler(process_press_prev, text="backward")
+    dp.register_callback_query_handler(process_press_page,
+                        lambda x: '/' in x.data and x.data.replace('/', '').isdigit())
+    dp.register_callback_query_handler(process_press_bookmark,
+                        lambda x: x.isdigit())
+    dp.register_callback_query_handler(process_press_editbm, text="edit_bookmarks")
+    dp.register_callback_query_handler(process_press_cancelbm, text="cancel")
+    dp.register_callback_query_handler(process_press_deletebm,
+                        lambda x: 'del' in x.data and x.data[:-3].isdigit())
 
 
-# Этот хэндлер будет срабатывать на команду "/help"
-async def process_help_command(message: Message):
-    await message.answer(f'Давайте я вам помогу\n\nКакую информацию вы ищите?')
 
-
-# Этот хэндлер будет срабатывать на остальные текстовые сообщения
-async def process_other_text_answers(message: Message):
-    print(message.text)
-    txt = f'Мы с вами еще не знакомы\n\nМожно узнать вас поближе. Это поможет мне более точно предоставлять вам информацию'
-    await message.answer(txt)
-
-
-
-# реакция на кнопки
-
-# Этот хэндлер будет срабатывать на остальные текстовые сообщения
-async def process_fill_anket_start(message: Message):
-    await message.answer(f'Отлично!\nЭто не займет много времени', reply_markup=ReplyKeyboardRemove())
-
-
-# Этот хэндлер будет срабатывать на остальные текстовые сообщения
-async def process_anonium_user(message: Message):
-    txt = f'Хорошо.\nВы всегда можете зарегистрироваться позже, нажава кнопку "Заполнить анкету"\n\nВот тут 👇👇👇'
-    await message.answer(txt, reply_markup=keybord_register)
-    await message.answer("👇")
