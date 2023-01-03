@@ -7,14 +7,15 @@ from config_data.config import Config, load_config
 
 from services.file_handling import book, prepare_book, BOOK_PATH
 from keyboards.main_menu import set_main_menu
+from handlers.other_handlers import register_other_handlers
 
 # initialize logger
 logger = logging.getLogger(__name__)
 
 # @brief register handlers from all modules
-#def register_all_handlers(dp: Dispatcher) -> None:
+def register_all_handlers(dp: Dispatcher) -> None:
 #    register_user_handlers(dp)
-#    register_other_handlers(dp)
+    register_other_handlers(dp)
 
 # @brief main starting
 async def main():

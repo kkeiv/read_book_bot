@@ -1,5 +1,5 @@
-from lexicon_ru import LEXICON_RU
-from lexicon_en import LEXICON_EN
+from lexicon.lexicon_ru import LEXICON_RU
+from lexicon.lexicon_en import LEXICON_EN
 
 # @brief get text based on language settings
 def get_text(param : str) -> str:
