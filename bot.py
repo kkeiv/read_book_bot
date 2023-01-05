@@ -20,11 +20,19 @@ def register_all_handlers(dp: Dispatcher) -> None:
 
 # @brief main starting
 async def main():
+    logging.basicConfig(
+        level=logging.INFO,
+        format=u'%(filename)s:%(lineno)d #%(levelname)-8s '
+               u'[%(asctime)s] - %(name)s - %(message)s'
+    )
+
+    # Выводим в консоль информацию о начале запуска бота
+    logger.info('Starting bot')
 
     # create and load configurations
     config: Config = load_config()
 
-    prepare_book(BOOK_PATH)
+ #   prepare_book(BOOK_PATH)
 
     # create and initialize bot
     bot: Bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
@@ -34,6 +42,9 @@ async def main():
 
     # prepare main menu
     await set_main_menu(dp)
+
+    # register all handlers
+    register_all_handlers(dp)
 
     # start pooling
     try:

@@ -14,8 +14,10 @@ def create_bookmark_kb(*args : int) -> InlineKeyboardMarkup:
                                              callback_data=str(bnumber)))
 
     # add two buttons for edit bokkmarks and cancel this sta
-    bookmark_kb.add(InlineKeyboardButton(text=get_text('edit_bookmarks'), callback_data='edit_bookmarks'))
-    bookmark_kb.add(InlineKeyboardButton(text=get_text('cancel'), callback_data='cancel'))
+    bookmark_kb.add(InlineKeyboardButton(text=get_text('edit_bookmarks_button'),
+                                            callback_data='edit_bookmarks'),
+                    InlineKeyboardButton(text=get_text('cancel'),
+                                            callback_data='cancel'))
 
     return bookmark_kb
 
@@ -27,8 +29,8 @@ def create_edit_kb(*args : int) -> InlineKeyboardMarkup:
     # fill with known bookmarks
     del_txt : str = get_text('del')
     for bnumber in sorted(args):
-        bookmark_kb.add(InlineKeyboardButton(text=f'{del_txt}{bnumber} - {book[bnumber][:100]}',
-                                             callback_data=str(bnumber)))
+        bookmark_kb.add(InlineKeyboardButton(text=f'{del_txt} {bnumber} - {book[bnumber][:100]}',
+                                             callback_data=(str(bnumber)+'del')))
 
     # add button for cancel of registration
     bookmark_kb.add(InlineKeyboardButton(text=get_text('cancel'), callback_data='cancel'))

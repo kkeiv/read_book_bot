@@ -4,7 +4,7 @@ from lexicon.lexicon import get_text
 # create main menu
 async def set_main_menu (dp : Dispatcher) -> None:
     main_menu_commands = [
-        types.BotCommand(command='/begining', description=get_text('menu_begining')),
+        types.BotCommand(command='/beginning', description=get_text('menu_beginning')),
         types.BotCommand(command='/continue', description=get_text('menu_continue')),
         types.BotCommand(command='/bookmarks', description=get_text('menu_bookmarks')),
         types.BotCommand(command='/help', description=get_text('menu_help'))

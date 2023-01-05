@@ -26,7 +26,7 @@ async def process_command_help (message : Message) -> None:
     answer : str = get_text(message.text)
     await message.answer(answer)
 
-# @brief handler for "start from begining" command '/begining'
+# @brief handler for "start from beginning" command '/begining'
 async def process_command_beginning (message : Message) -> None:
     # move position to first page
     users_db[message.from_user.id]['page'] = 1
@@ -124,27 +124,23 @@ async def process_press_bookmark (callback : CallbackQuery) -> None:
                         )
     )
     # mark answer for telegram
-    await callback.answer
+    await callback.answer()
 
 # @brief handler for press button with "edit bookmark"
 async def process_press_editbm (callback : CallbackQuery) -> None:
     # edit current message
     await callback.message.edit_text(text = get_text(callback.data),
-                        reply_markup = create_pagination_keyboard(
-                            'backward',
-                            f'{users_db[callback.from_user.id]["page"]}/{len(book)}',
-                            'forward'
-                        )
+                        reply_markup = create_edit_kb(*users_db[callback.from_user.id]['bookmarks'])
     )
     # mark answer for telegram
-    await callback.answer
+    await callback.answer()
 
 # @brief handler for press button for cancellation of edit bookmark
 async def process_press_cancelbm (callback : CallbackQuery) -> None:
     await callback.message.edit_text(text = get_text('cancel_text'))
 
     # mark answer for telegram
-    await callback.answer
+    await callback.answer()
 
 # @brief handler for press button with "delete bookmark"
 async def process_press_deletebm (callback : CallbackQuery) -> None:
@@ -154,18 +150,18 @@ async def process_press_deletebm (callback : CallbackQuery) -> None:
     # prepare replay base on amount of bookmarks
     if users_db[callback.from_user.id]['bookmarks']:         # user have bookmarks
         await callback.message.edit_text(text = get_text('/bookmarks'),
-                    reply_markup = create_bookmark_kb(*users_db[callback.from_user.id]['bookmarks']))
+                    reply_markup = create_edit_kb(*users_db[callback.from_user.id]['bookmarks']))
     else:                                                   # user have no bookmarks
-        await callback.answer(text = get_text('no_bookmarks'))
+        await callback.message.edit_text(text = get_text('no_bookmarks'))
 
     # mark answer for telegram
-    await callback.answer
+    await callback.answer()
 
 # @brief register all user`s handlers
 def register_user_handlers (dp : Dispatcher) -> None:
     dp.register_message_handler(process_command_start, commands=['start'])
     dp.register_message_handler(process_command_help, commands=['help'])
-    dp.register_message_handler(process_command_beginning, commands=['begining'])
+    dp.register_message_handler(process_command_beginning, commands=['beginning'])
     dp.register_message_handler(process_command_continue, commands=['continue'])
     dp.register_message_handler(process_command_bookmarks, commands=['bookmarks'])
 
@@ -174,7 +170,7 @@ def register_user_handlers (dp : Dispatcher) -> None:
     dp.register_callback_query_handler(process_press_page,
                         lambda x: '/' in x.data and x.data.replace('/', '').isdigit())
     dp.register_callback_query_handler(process_press_bookmark,
-                        lambda x: x.isdigit())
+                        lambda x: x.data.isdigit())
     dp.register_callback_query_handler(process_press_editbm, text="edit_bookmarks")
     dp.register_callback_query_handler(process_press_cancelbm, text="cancel")
     dp.register_callback_query_handler(process_press_deletebm,

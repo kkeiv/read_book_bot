@@ -8,6 +8,6 @@ def create_pagination_keyboard (*buttons: str) -> InlineKeyboardMarkup:
     pagination_kb: InlineKeyboardMarkup = InlineKeyboardMarkup()
 
     # add buttons into keyboard
-    pagination_kb.row(*[get_text(button) for button in buttons])
+    pagination_kb.row(*[InlineKeyboardButton(get_text(button), callback_data=button) for button in buttons])
 
     return pagination_kb
