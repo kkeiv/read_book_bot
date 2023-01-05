@@ -14,6 +14,7 @@ LEXICON_EN: dict[str, str] = {'forward': '>>',
            'del': '❌',
            'cancel': 'CANCEL',
            'no_bookmarks': 'En:У вас пока нету ни одной закладки.\n\nЧтобы добавить страницу в закладки - во время чтения книги нажмите на кнопку с номером этой страницы\n\n/continue - продолжить чтение',
+           'bookmark_added': 'I`ve create new bookmark for you',
            'cancel_text': 'En /continue - продолжить чтение',
            'unknown_message' : 'Unknown message'
            }

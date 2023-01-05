@@ -1,53 +1,165 @@
+from copy import deepcopy
+
 from aiogram import Dispatcher
 from aiogram.types import Message, CallbackQuery
 
-# @brief handler for "start" command
+from database.database import users_db, user_dict_template
+from services.file_handling import book
+
+from keyboards.pagination_kb import create_pagination_keyboard
+from keyboards.bookmarks_kb import create_bookmark_kb, create_edit_kb
+from lexicon.lexicon import get_text
+
+# @brief handler for "start" command '/start'
 async def process_command_start (message : Message) -> None:
-    pass
+    # answer with wellcome text
+    answer : str = get_text(message.text)
+    await message.answer(answer)
 
-# @brief handler for "help" command
+    #save new user into db
+    if message.from_user.id not in users_db:
+        users_db[message.from_user.id] = deepcopy (user_dict_template)
+
+# @brief handler for "help" command '/help'
 async def process_command_help (message : Message) -> None:
-    pass
+    # answer with help text
+    answer : str = get_text(message.text)
+    await message.answer(answer)
 
-# @brief handler for "start from begining" command
+# @brief handler for "start from begining" command '/begining'
 async def process_command_beginning (message : Message) -> None:
-    pass
+    # move position to first page
+    users_db[message.from_user.id]['page'] = 1
+    # get text of first page
+    text = book[users_db[message.from_user.id]['page']]
 
-# @brief handler for "continue reading" command
+    # prepare answer with new inline markup
+    await message.answer(text = text,
+                        reply_markup = create_pagination_keyboard(
+                            "backward",
+                            f"{users_db[message.from_user.id]['page']}/{len(book)}",
+                            "forward"
+                        )
+                )
+
+# @brief handler for "continue reading" command '/continue'
 async def process_command_continue (message : Message) -> None:
-    pass
+    # get text of first page
+    text = book[users_db[message.from_user.id]['page']]
 
-# @brief handler for "edit bookmarks" command
+    # prepare answer with new inline markup
+    await message.answer(text = text,
+                        reply_markup = create_pagination_keyboard(
+                            "backward",
+                            f"{users_db[message.from_user.id]['page']}/{len(book)}",
+                            "forward"
+                        )
+    )
+
+# @brief handler for "edit bookmarks" command '/bookmarks'
 async def process_command_bookmarks (message : Message) -> None:
-    pass
+    # form replay based on bookmarks of user
+    if users_db[message.from_user.id]['bookmarks']:         # user have bookmarks
+        await message.answer(text = get_text(message.text),
+                    reply_markup = create_bookmark_kb(*users_db[message.from_user.id]['bookmarks']))
+    else:                                                   # user have no bookmarks
+        await message.answer(text = get_text('no_bookmarks'))
 
 # @brief handler for press button "next page"
 async def process_press_next (callback : CallbackQuery) -> None:
-    pass
+    # if we must have next page
+    if users_db[callback.from_user.id]['page'] < len(book):
+        users_db[callback.from_user.id]['page'] += 1
+        text = book[users_db[callback.from_user.id]['page']]
+
+        # prepare answer with new inline markup
+        await callback.message.edit_text(text = text,
+                            reply_markup = create_pagination_keyboard(
+                                "backward",
+                                f"{users_db[callback.from_user.id]['page']}/{len(book)}",
+                                "forward"
+                            )
+        )
+    # no next page - just confirm receiving
+    await callback.answer()
 
 # @brief handler for press button "previous page"
 async def process_press_prev (callback : CallbackQuery) -> None:
-    pass
+    # if we must have next page
+    if users_db[callback.from_user.id]['page'] > 1:
+        users_db[callback.from_user.id]['page'] -= 1
+        text = book[users_db[callback.from_user.id]['page']]
+
+        # prepare answer with new inline markup
+        await callback.message.edit_text(text = text,
+                            reply_markup = create_pagination_keyboard(
+                                "backward",
+                                f"{users_db[callback.from_user.id]['page']}/{len(book)}",
+                                "forward"
+                            )
+        )
+    # no next page - just confirm receiving
+    await callback.answer()
 
 # @brief handler for press button with page number
 async def process_press_page (callback : CallbackQuery) -> None:
-    pass
+    # add new bookmark into set of bookmarks for this user
+    users_db[callback.from_user.id]['bookmarks'].add(
+        users_db[callback.from_user.id]['page'])
+    await callback.answer(get_text('bookmark_added'))
 
 # @brief handler for press button with bookmark number
 async def process_press_bookmark (callback : CallbackQuery) -> None:
-    pass
+    # move pointer of page number into new position
+    users_db[callback.from_user.id]['page'] = int(callback.data)
+    # get text for requested page
+    text = book[users_db[callback.from_user.id]['page']]
+
+    # edit current message
+    await callback.message.edit_text(text = text,
+                        reply_markup = create_pagination_keyboard(
+                            'backward',
+                            f'{users_db[callback.from_user.id]["page"]}/{len(book)}',
+                            'forward'
+                        )
+    )
+    # mark answer for telegram
+    await callback.answer
 
 # @brief handler for press button with "edit bookmark"
 async def process_press_editbm (callback : CallbackQuery) -> None:
-    pass
+    # edit current message
+    await callback.message.edit_text(text = get_text(callback.data),
+                        reply_markup = create_pagination_keyboard(
+                            'backward',
+                            f'{users_db[callback.from_user.id]["page"]}/{len(book)}',
+                            'forward'
+                        )
+    )
+    # mark answer for telegram
+    await callback.answer
 
 # @brief handler for press button for cancellation of edit bookmark
 async def process_press_cancelbm (callback : CallbackQuery) -> None:
-    pass
+    await callback.message.edit_text(text = get_text('cancel_text'))
+
+    # mark answer for telegram
+    await callback.answer
 
 # @brief handler for press button with "delete bookmark"
 async def process_press_deletebm (callback : CallbackQuery) -> None:
-    pass
+    # remove bokkmark from list
+    users_db[callback.from_user.id]['bookmarks'].remove(int(callback.data[:-3]))
+
+    # prepare replay base on amount of bookmarks
+    if users_db[callback.from_user.id]['bookmarks']:         # user have bookmarks
+        await callback.message.edit_text(text = get_text('/bookmarks'),
+                    reply_markup = create_bookmark_kb(*users_db[callback.from_user.id]['bookmarks']))
+    else:                                                   # user have no bookmarks
+        await callback.answer(text = get_text('no_bookmarks'))
+
+    # mark answer for telegram
+    await callback.answer
 
 # @brief register all user`s handlers
 def register_user_handlers (dp : Dispatcher) -> None:
