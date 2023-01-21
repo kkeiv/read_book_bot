@@ -1,4 +1,4 @@
-📁 tg_bot_template
+📁 tg_bot_template				- root директория
  |_ .env
  |_ .env.example
  |_ .gitignore
